@@ -1,11 +1,15 @@
 package org.improving;
 
-public class Ship {
-    int height;
-    int length;
+import java.util.Random;
 
-    public Ship(int length) {
-        this.height = 1;
-        this.length = length;
+public class Ship {
+    int xLength;
+    int orientation;
+
+    public Ship(int xLength) {
+        this.xLength = xLength;
+        this.orientation = new Random().nextInt(3);
+        this.orientation = 0;
     }
+
 }

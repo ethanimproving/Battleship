@@ -1,9 +1,7 @@
 package org.improving;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static int numRows = 8;
@@ -75,18 +73,60 @@ public class Main {
         Main.ships.add(two);
 
         //Deploying five ships for computer
-        Main.computerShips = 5;
-        for (int i = 1; i <= Main.computerShips; ) {
-            int x = (int)(Math.random() * 10);
-            int y = (int)(Math.random() * 10);
 
-            if((x >= 0 && x < numRows) && (y >= 0 && y < numCols) && (grid[x][y] == " "))
-            {
-                grid[x][y] =   "x";
-                System.out.println(i + ". ship DEPLOYED");
-                i++;
+        for (Ship ship: ships) {
+            int x = 0;
+            int y = 0;
+
+            boolean isValidCoordinate = true;
+            while (isValidCoordinate) {
+                x = (int)(Math.random() * 8);
+                y = (int)(Math.random() * 8);
+
+                // If is coordinate is valid, print an X on the grid and exit the while loop
+                if (isValidCoordinate(x, y) && isValidPlacement(ship, x, y)) {
+                    grid[x][y] = "x";
+                    for (int i = 0; i < ship.xLength; i++) {
+                        if (y - i >= 0) {
+                            grid[x][y - i] = "x";
+                        }
+                    }
+                    isValidCoordinate = false;
+                } else {
+                    // Otherwise generate new coordinates
+                    continue;
+                }
             }
+
+
+//            boolean isValidPlacement = true;
+//            while (isValidPlacement) {
+//                if (isValidPlacement(ship, x, y)) {
+//                    for (int i = 0; i < ship.xLength - 1; i++) {
+//                        grid[x][y - i] = "x";
+//                        isValidPlacement = false;
+//                    }
+//                }
+//            }
+
         }
+
+//        for (int i = 1; i <= Main.computerShips; ) {
+//            boolean isValid = false;
+//            while (isValid) {
+//                int x = (int)(Math.random() * 8);
+//                for (int coordinate :  )
+//                int y = (int)(Math.random() * 8);
+//
+//                if((x >= 0 && x < numRows) && (y >= 0 && y < numCols) && (grid[x][y] == " "))
+//                {
+//                    grid[x][y] =   "x";
+//                    System.out.println(i + ". ship DEPLOYED");
+//                    i++;
+//                }
+//            }
+//
+//        }
         printOceanMap();
     }
 
@@ -104,11 +144,31 @@ public class Main {
         System.out.println("\nYOUR TURN");
         int x = -1, y = -1;
         do {
-            Scanner input = new Scanner(System.in);
-            System.out.print("Enter X coordinate: ");
-            x = input.nextInt();
-            System.out.print("Enter Y coordinate: ");
-            y = input.nextInt();
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter coordinates (A1)");
+            String input = scanner.nextLine();
+
+            var letter = String.valueOf(input.charAt(0));
+            System.out.println("Letter: " + letter);
+            char[] alphabet = "ABCDEFGH".toCharArray();
+            Map<String, Integer> indexedLetters = new HashMap<>();
+            int i=0;
+            for (char l : alphabet) {
+                indexedLetters.put(String.valueOf(l), i++);
+            }
+
+            x = indexedLetters.get(letter);
+            y = (int)input.charAt(1) - 48;
+
+            System.out.println(input.charAt(1));
+            System.out.println("C: " + x + ", " + y);
+
+
+            // Coordinates:
+//            System.out.print("Enter X coordinate: ");
+//            x = scanner.nextInt();
+//            System.out.print("Enter Y coordinate: ");
+//            y = scanner.nextInt();
 
             if ((x >= 0 && x < numRows) && (y >= 0 && y < numCols)) //valid guess
             {
@@ -131,10 +191,11 @@ public class Main {
 
     public static void gameOver(){
         System.out.println("Computer ships: " + Main.computerShips);
-        if(Main.computerShips <= 0)
+        if(Main.ships.size() <= 0) {
             System.out.println("Hooray! You won the battle :)");
-        else
+        } else {
             System.out.println("Sorry, you lost the battle");
+        }
         System.out.println();
     }
 
@@ -165,5 +226,35 @@ public class Main {
         for(int i = 0; i < numCols; i++)
             System.out.print(i);
         System.out.println();
+    }
+
+    public static boolean isValidCoordinate(int x, int y) {
+        if((x >= 0 && x < numRows) && (y >= 0 && y < numCols) && (grid[x][y] == " ")) return true;
+        else return false;
+    }
+
+    public static boolean isValidPlacement(Ship ship, int x, int y) {
+        if (ship.orientation == 0) {
+            // If the ship goes outside the grid boarders, return false
+            if (y - ship.xLength >= 0) {
+                // Check if another ship exists there
+                for (int i = 0; i < ship.xLength; i++) {
+                    if (grid[x][i] == "x") return false;
+                }
+                // If no ship is in the way, return true
+                return true;
+            }
+            return false;
+        } else if (ship.orientation == 1) {
+            if (x - ship.xLength >= 0) {
+                // Check if another ship exists there
+                for (int i = 0; i < ship.xLength; i++) {
+                    if (grid[x][i] == "x") return false;
+                }
+                // If no ship is in the way, return true
+                return true;
+            }
+        }
+        return false;
     }
 }
